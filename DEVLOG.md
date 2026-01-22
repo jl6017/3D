@@ -9,7 +9,7 @@
 
 ### CDN URLs
 ```html
-<!-- Three.js -->
+<!-- Three.js (import map in index.html) -->
 <script type="importmap">
 {
     "imports": {
@@ -18,9 +18,14 @@
     }
 }
 </script>
+```
 
-<!-- MediaPipe -->
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.8/vision_bundle.min.js"></script>
+```javascript
+// MediaPipe (dynamic import in tracker.js)
+const vision = await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/vision_bundle.mjs');
+const visionModule = vision.default || vision;
+FaceLandmarker = visionModule.FaceLandmarker;
+FilesetResolver = visionModule.FilesetResolver;
 ```
 
 ---
@@ -125,6 +130,74 @@ Three.js expects `(left, right, TOP, BOTTOM, near, far)` - with top before botto
 - Added initial `updateCameraFromHead({x:0, y:0, z:0})` call to prevent jump on first mouse move
 
 **Commit:** `1141bb3` - Fix off-axis projection parameter order and mouse input
+
+---
+
+### 2026-01-22 18:00 - Feature: Mode Selection UI
+
+**Request:** Add entrance page with two options instead of auto-detecting webcam
+
+**Implementation:**
+1. Added mode selection overlay in `index.html`:
+   - "Mouse Mode" button - starts immediately with mouse tracking
+   - "Face Tracking" button - loads MediaPipe and requests webcam
+
+2. Styled mode selection in `css/style.css`:
+   - Dark overlay with centered content
+   - Gradient title text
+   - Hover effects on buttons
+
+3. Updated `js/main.js`:
+   - Separated `initMouseMode()` and `initFaceMode()` functions
+   - Mode selection triggers appropriate initialization
+   - Fallback prompt if face tracking fails
+
+4. Updated `js/tracker.js`:
+   - Exported `initMouseMode()` and `initFaceMode()` separately
+   - Kept legacy `initTracker()` for backward compatibility
+
+---
+
+### 2026-01-22 18:20 - Bug #2: MediaPipe Timeout Error
+
+**Symptoms:**
+- Clicking "Face Tracking" showed "MediaPipe Vision failed to load (timeout)"
+- Webcam permission was never requested
+- Worked on localhost previously but not after refactor
+
+**Initial Debug Attempts:**
+
+1. **First attempt** - Added `waitForVision()` function:
+   - Waited for global `vision` variable with 10s timeout
+   - Result: Still timed out - `vision` was never defined
+
+2. **Second attempt** - Changed script tag loading:
+   - Tried different CDN URLs
+   - Result: Global variable approach doesn't work with ES modules
+
+**Root Cause Found:**
+
+The `vision_bundle.min.js` loaded via `<script>` tag does NOT expose a global `vision` variable. MediaPipe Tasks Vision must be imported as an ES module.
+
+**Solution:**
+
+Removed script tag from `index.html` and used dynamic import in `tracker.js`:
+
+```javascript
+// OLD (doesn't work):
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.8/vision_bundle.min.js"></script>
+// Then checking: if (typeof vision === 'undefined') // always undefined!
+
+// NEW (works):
+const vision = await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/vision_bundle.mjs');
+const visionModule = vision.default || vision;
+FaceLandmarker = visionModule.FaceLandmarker;
+FilesetResolver = visionModule.FilesetResolver;
+```
+
+**Key Learning:** MediaPipe Tasks Vision exports as ES module default export, not as a global variable.
+
+**Commit:** `10ab1d8` - Add mode selection UI and fix MediaPipe loading
 
 ---
 
