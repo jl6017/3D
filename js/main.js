@@ -1,9 +1,10 @@
 // Main application entry point
 import { initScene, updateCameraFromHead, render } from './scene.js';
-import { initTracker, getHeadPosition, getTrackingMode } from './tracker.js';
+import { initTracker, initMouseMode, initFaceMode, getHeadPosition, getTrackingMode } from './tracker.js';
 
 // DOM Elements
 let canvasContainer;
+let modeOverlay;
 let statusOverlay;
 let statusText;
 let debugInfo;
@@ -17,41 +18,70 @@ let isInitialized = false;
 async function init() {
     // Get DOM elements
     canvasContainer = document.getElementById('canvas-container');
+    modeOverlay = document.getElementById('mode-overlay');
     statusOverlay = document.getElementById('status-overlay');
     statusText = document.getElementById('status-text');
     debugInfo = document.getElementById('debug-info');
 
-    try {
-        // Initialize 3D scene
-        updateStatus('Initializing 3D scene...');
-        initScene(canvasContainer);
+    // Initialize 3D scene first (runs in background)
+    initScene(canvasContainer);
 
-        // Initialize head tracker
-        updateStatus('Initializing head tracking...');
-        const webcamElement = document.getElementById('webcam');
+    // Apply initial off-axis projection
+    updateCameraFromHead({ x: 0, y: 0, z: 0 });
 
-        await initTracker({
-            videoElement: webcamElement,
-            onPositionUpdate: handlePositionUpdate,
-            onStatusChange: updateStatus
+    // Setup mode selection buttons
+    document.getElementById('btn-mouse').addEventListener('click', () => startWithMode('mouse'));
+    document.getElementById('btn-webcam').addEventListener('click', () => startWithMode('face'));
+
+    // Start render loop
+    isInitialized = true;
+    animate();
+}
+
+/**
+ * Start the experience with selected mode
+ * @param {string} mode - 'mouse' or 'face'
+ */
+async function startWithMode(mode) {
+    // Hide mode selection
+    modeOverlay.classList.add('hidden');
+
+    if (mode === 'mouse') {
+        // Start mouse tracking immediately
+        initMouseMode({
+            onPositionUpdate: handlePositionUpdate
         });
+        updateDebugInfo({ x: 0, y: 0, z: 0 });
+    } else {
+        // Show loading status for face tracking
+        statusOverlay.classList.remove('hidden');
+        updateStatus('Loading face detection model...');
 
-        // Apply off-axis projection immediately with center position
-        updateCameraFromHead({ x: 0, y: 0, z: 0 });
+        try {
+            await initFaceMode({
+                videoElement: document.getElementById('webcam'),
+                onPositionUpdate: handlePositionUpdate,
+                onStatusChange: updateStatus
+            });
 
-        // Hide status overlay after successful init
-        setTimeout(() => {
-            statusOverlay.classList.add('hidden');
-        }, 1000);
+            // Hide status overlay on success
+            setTimeout(() => {
+                statusOverlay.classList.add('hidden');
+            }, 500);
+        } catch (error) {
+            console.error('Face tracking error:', error);
+            showError(`Face tracking failed: ${error.message}`);
 
-        isInitialized = true;
-
-        // Start render loop
-        animate();
-
-    } catch (error) {
-        console.error('Initialization error:', error);
-        showError(`Failed to initialize: ${error.message}`);
+            // Offer fallback to mouse mode
+            setTimeout(() => {
+                if (confirm('Face tracking failed. Use mouse mode instead?')) {
+                    statusOverlay.classList.add('hidden');
+                    initMouseMode({
+                        onPositionUpdate: handlePositionUpdate
+                    });
+                }
+            }, 100);
+        }
     }
 }
 

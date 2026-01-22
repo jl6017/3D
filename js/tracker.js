@@ -1,5 +1,9 @@
 // Head tracking module using MediaPipe FaceLandmarker
 
+// MediaPipe modules (loaded dynamically)
+let FaceLandmarker = null;
+let FilesetResolver = null;
+
 const CONFIG = {
     // Webcam settings
     videoWidth: 640,
@@ -36,23 +40,48 @@ let onStatusChange = null;
 let trackingMode = 'none'; // 'face', 'mouse', 'none'
 
 /**
- * Initialize the head tracker
+ * Initialize mouse-based tracking
+ * @param {Object} options - Configuration options
+ */
+export function initMouseMode(options = {}) {
+    onPositionUpdate = options.onPositionUpdate || (() => {});
+
+    trackingMode = 'mouse';
+    isRunning = true;
+
+    document.addEventListener('mousemove', handleMouseMove);
+
+    console.log('Mouse mode initialized');
+}
+
+/**
+ * Initialize face tracking mode
  * @param {Object} options - Configuration options
  * @returns {Promise<boolean>} - Success status
+ */
+export async function initFaceMode(options = {}) {
+    videoElement = options.videoElement || document.getElementById('webcam');
+    onPositionUpdate = options.onPositionUpdate || (() => {});
+    onStatusChange = options.onStatusChange || (() => {});
+
+    await initFaceTracking();
+    return true;
+}
+
+/**
+ * Legacy function for backward compatibility
  */
 export async function initTracker(options = {}) {
     videoElement = options.videoElement || document.getElementById('webcam');
     onPositionUpdate = options.onPositionUpdate || (() => {});
     onStatusChange = options.onStatusChange || (() => {});
 
-    // Try to initialize face tracking first
     try {
         await initFaceTracking();
         return true;
     } catch (error) {
         console.warn('Face tracking unavailable:', error.message);
-        // Fall back to mouse tracking
-        initMouseFallback();
+        initMouseMode({ onPositionUpdate });
         return false;
     }
 }
@@ -61,14 +90,21 @@ export async function initTracker(options = {}) {
  * Initialize MediaPipe FaceLandmarker
  */
 async function initFaceTracking() {
-    onStatusChange('Loading face detection model...');
+    onStatusChange('Loading MediaPipe library...');
 
-    // Check if MediaPipe is loaded
-    if (typeof vision === 'undefined') {
-        throw new Error('MediaPipe Vision not loaded');
+    // Dynamically import MediaPipe
+    try {
+        const vision = await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/vision_bundle.mjs');
+        // Handle both default export and named exports
+        const visionModule = vision.default || vision;
+        FaceLandmarker = visionModule.FaceLandmarker;
+        FilesetResolver = visionModule.FilesetResolver;
+    } catch (e) {
+        console.error('MediaPipe import error:', e);
+        throw new Error('Failed to load MediaPipe: ' + e.message);
     }
 
-    const { FaceLandmarker, FilesetResolver } = vision;
+    onStatusChange('Loading face detection model...');
 
     // Load the model
     const filesetResolver = await FilesetResolver.forVisionTasks(
@@ -177,7 +213,7 @@ function extractHeadPosition(landmarks) {
     // Normalize to [-1, 1] range
     // Note: x is flipped because webcam is mirrored
     headPosition.x = -(eyeCenter.x - 0.5) * 2 * CONFIG.scaleX;
-    headPosition.y = -(eyeCenter.y - 0.5) * 2 * CONFIG.scaleY;
+    headPosition.y = (eyeCenter.y - 0.5) * 2 * CONFIG.scaleY;
     headPosition.z = -eyeCenter.z * CONFIG.scaleZ; // z is depth
 
     // Clamp values
@@ -201,23 +237,6 @@ function applySmoothing() {
     smoothedPosition.x = smoothedPosition.x + (headPosition.x - smoothedPosition.x) * (1 - alpha);
     smoothedPosition.y = smoothedPosition.y + (headPosition.y - smoothedPosition.y) * (1 - alpha);
     smoothedPosition.z = smoothedPosition.z + (headPosition.z - smoothedPosition.z) * (1 - alpha);
-}
-
-/**
- * Initialize mouse-based fallback tracking
- */
-function initMouseFallback() {
-    onStatusChange('Using mouse for head simulation');
-    trackingMode = 'mouse';
-
-    // Hide webcam video
-    if (videoElement) {
-        videoElement.classList.add('hidden');
-    }
-
-    document.addEventListener('mousemove', handleMouseMove);
-
-    isRunning = true;
 }
 
 /**

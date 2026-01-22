@@ -16,8 +16,6 @@
     }
     </script>
 
-    <!-- MediaPipe Vision Tasks -->
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.8/vision_bundle.min.js" crossorigin="anonymous"></script>
 </head>
 <body>
     <!-- Main 3D canvas container -->
@@ -26,8 +24,28 @@
     <!-- Hidden video element for webcam -->
     <video id="webcam" autoplay playsinline></video>
 
+    <!-- Mode selection overlay -->
+    <div id="mode-overlay">
+        <div id="mode-selection">
+            <h1>3D Magic Window</h1>
+            <p>Choose your interaction mode:</p>
+            <div class="mode-buttons">
+                <button id="btn-mouse" class="mode-button">
+                    <span class="mode-icon">🖱️</span>
+                    <span class="mode-title">Mouse Mode</span>
+                    <span class="mode-desc">Control view with mouse movement</span>
+                </button>
+                <button id="btn-webcam" class="mode-button">
+                    <span class="mode-icon">📷</span>
+                    <span class="mode-title">Face Tracking</span>
+                    <span class="mode-desc">Use webcam to track head position</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Status overlay -->
-    <div id="status-overlay">
+    <div id="status-overlay" class="hidden">
         <div id="status-text">Initializing...</div>
     </div>
 
