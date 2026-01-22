@@ -1,0 +1,111 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #000;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+#canvas-container {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+#canvas-container canvas {
+    display: block;
+}
+
+#webcam {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 160px;
+    height: 120px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    opacity: 0.7;
+    z-index: 100;
+    transform: scaleX(-1); /* Mirror the video */
+}
+
+#webcam.hidden {
+    display: none;
+}
+
+#status-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 1000;
+    transition: opacity 0.5s ease;
+}
+
+#status-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+#status-text {
+    color: #fff;
+    font-size: 1.5rem;
+    text-align: center;
+    padding: 20px;
+    max-width: 80%;
+}
+
+#debug-info {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 12px;
+    font-family: monospace;
+    z-index: 100;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 8px 12px;
+    border-radius: 4px;
+}
+
+#debug-info.hidden {
+    display: none;
+}
+
+/* Permission button styling */
+.permission-button {
+    background: #4a9eff;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    font-size: 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: background 0.2s ease;
+}
+
+.permission-button:hover {
+    background: #3a8eef;
+}
+
+.status-error {
+    color: #ff6b6b;
+}
+
+.status-warning {
+    color: #ffd93d;
+}

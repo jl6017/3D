@@ -1,5 +1,40 @@
-<!doctype html>
-<html>
-  <head><meta charset="utf-8"><title>3D</title></head>
-  <body><h1>Hello from /3d/</h1></body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Magic Window</title>
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Import Map for Three.js ES Modules -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+
+    <!-- MediaPipe Vision Tasks -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.8/vision_bundle.min.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <!-- Main 3D canvas container -->
+    <div id="canvas-container"></div>
+
+    <!-- Hidden video element for webcam -->
+    <video id="webcam" autoplay playsinline></video>
+
+    <!-- Status overlay -->
+    <div id="status-overlay">
+        <div id="status-text">Initializing...</div>
+    </div>
+
+    <!-- Debug info (optional) -->
+    <div id="debug-info"></div>
+
+    <!-- Main application script -->
+    <script type="module" src="js/main.js"></script>
+</body>
 </html>
