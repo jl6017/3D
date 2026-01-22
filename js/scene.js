@@ -272,28 +272,36 @@ export function updateCameraFromHead(headPos) {
     // Convert normalized [-1, 1] to physical position
     // Assume viewer is ~0.5m from screen and moves +/- 0.3m side to side
     const viewerX = headPos.x * 0.4;
-    const viewerY = headPos.y * 0.3;
+    const viewerY = -headPos.y * 0.3; // Flip Y so moving mouse up looks up
     const viewerZ = 0.6 + headPos.z * 0.2; // Base distance + depth variation
 
     // Update camera position
     camera.position.set(viewerX, viewerY, viewerZ);
 
+    // Reset camera rotation to look straight ahead (down -Z axis)
+    camera.rotation.set(0, 0, 0);
+
     // Create off-axis perspective projection
+    // The screen plane is at z=0, camera is at z=viewerZ (positive)
     const near = CONFIG.nearPlane;
     const far = CONFIG.farPlane;
 
-    // Calculate frustum based on screen corners relative to viewer
-    const left = (screenCorners.bottomLeft.x - viewerX) * near / viewerZ;
-    const right = (screenCorners.bottomRight.x - viewerX) * near / viewerZ;
-    const bottom = (screenCorners.bottomLeft.y - viewerY) * near / viewerZ;
-    const top = (screenCorners.topLeft.y - viewerY) * near / viewerZ;
+    // Screen half-dimensions
+    const halfWidth = CONFIG.screenWidth / 2;
+    const halfHeight = CONFIG.screenHeight / 2;
 
-    // Apply off-axis projection
+    // Calculate frustum edges at near plane
+    // Using similar triangles: nearEdge / near = screenEdge / viewerZ
+    const scale = near / viewerZ;
+
+    const left = (-halfWidth - viewerX) * scale;
+    const right = (halfWidth - viewerX) * scale;
+    const bottom = (-halfHeight - viewerY) * scale;
+    const top = (halfHeight - viewerY) * scale;
+
+    // Apply off-axis projection matrix
     camera.projectionMatrix.makePerspective(left, right, bottom, top, near, far);
     camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert();
-
-    // Look at center of screen (z=0)
-    camera.lookAt(0, 0, -1);
 }
 
 /**
