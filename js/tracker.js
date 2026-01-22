@@ -225,8 +225,9 @@ function initMouseFallback() {
  */
 function handleMouseMove(event) {
     // Convert mouse position to [-1, 1] range
+    // For intuitive control: mouse up = look up (see top of scene)
     headPosition.x = (event.clientX / window.innerWidth - 0.5) * 2;
-    headPosition.y = -(event.clientY / window.innerHeight - 0.5) * 2;
+    headPosition.y = (event.clientY / window.innerHeight - 0.5) * 2;
     headPosition.z = 0;
 
     // Apply smoothing

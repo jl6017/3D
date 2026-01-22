@@ -271,8 +271,9 @@ export function updateCameraFromHead(headPos) {
 
     // Convert normalized [-1, 1] to physical position
     // Assume viewer is ~0.5m from screen and moves +/- 0.3m side to side
+    // Note: Y is already flipped in tracker.js (positive Y = up)
     const viewerX = headPos.x * 0.4;
-    const viewerY = -headPos.y * 0.3; // Flip Y so moving mouse up looks up
+    const viewerY = headPos.y * 0.3;
     const viewerZ = 0.6 + headPos.z * 0.2; // Base distance + depth variation
 
     // Update camera position
@@ -300,7 +301,8 @@ export function updateCameraFromHead(headPos) {
     const top = (halfHeight - viewerY) * scale;
 
     // Apply off-axis projection matrix
-    camera.projectionMatrix.makePerspective(left, right, bottom, top, near, far);
+    // Note: makePerspective parameter order is (left, right, TOP, BOTTOM, near, far)
+    camera.projectionMatrix.makePerspective(left, right, top, bottom, near, far);
     camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert();
 }
 

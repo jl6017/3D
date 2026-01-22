@@ -36,6 +36,9 @@ async function init() {
             onStatusChange: updateStatus
         });
 
+        // Apply off-axis projection immediately with center position
+        updateCameraFromHead({ x: 0, y: 0, z: 0 });
+
         // Hide status overlay after successful init
         setTimeout(() => {
             statusOverlay.classList.add('hidden');
