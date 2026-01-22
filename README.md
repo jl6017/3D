@@ -1,5 +1,7 @@
 # 3D Magic Window
 
+**Live Demo:** https://jl6017.github.io/3D/
+
 A parallax "magic window" effect that creates the illusion of looking through your screen into a 3D world. The scene perspective adjusts based on your head position, tracked via webcam.
 
 ## Features

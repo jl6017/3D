@@ -201,6 +201,57 @@ FilesetResolver = visionModule.FilesetResolver;
 
 ---
 
+### 2026-01-22 18:45 - Feature: Back Button
+
+**Implementation:**
+- Added "← Back" button in top-left corner
+- Appears when entering mouse or face tracking mode
+- Clicking stops current tracker and returns to mode selection
+- Added `stopTracker()` call to properly cleanup webcam/mouse listeners
+
+---
+
+### 2026-01-22 19:00 - Feature: Complex 3D Scene
+
+**Request:** Create a more visually interesting scene to showcase parallax effect
+
+**New Scene Elements:**
+
+1. **Room Structure**:
+   - Floor with dark material
+   - Back wall and side walls
+   - Purple accent rug
+
+2. **Furniture**:
+   - Wooden desk with legs
+   - Chair with seat and backrest
+   - Bookshelf with colorful books (randomized heights/colors)
+
+3. **Desk Items**:
+   - Desk lamp with glowing bulb and point light
+   - Computer monitor with blue screen
+   - Potted plant with leaves
+   - White coffee mug with coffee inside
+
+4. **Wall Decorations**:
+   - Picture frames with colored canvases
+
+5. **Foreground Parallax Objects**:
+   - Floating geometric shapes (icosahedron, octahedron, tetrahedron, dodecahedron)
+   - Semi-transparent with metallic finish
+   - Rotating animation
+
+6. **Atmosphere**:
+   - Subtle dust particles throughout the room
+
+**Technical Notes:**
+- Used THREE.Group for complex objects (lamp, monitor, plant, mug)
+- Added point light to lamp for realistic lighting
+- Books have randomized widths, heights, and slight rotation
+- Foreground shapes have `userData.rotationSpeed` for animation
+
+---
+
 ## Technical Notes
 
 ### Off-Axis Projection Math

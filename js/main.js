@@ -1,6 +1,6 @@
 // Main application entry point
 import { initScene, updateCameraFromHead, render } from './scene.js';
-import { initTracker, initMouseMode, initFaceMode, getHeadPosition, getTrackingMode } from './tracker.js';
+import { initTracker, initMouseMode, initFaceMode, getHeadPosition, getTrackingMode, stopTracker } from './tracker.js';
 
 // DOM Elements
 let canvasContainer;
@@ -8,6 +8,7 @@ let modeOverlay;
 let statusOverlay;
 let statusText;
 let debugInfo;
+let btnBack;
 
 // Application state
 let isInitialized = false;
@@ -22,6 +23,7 @@ async function init() {
     statusOverlay = document.getElementById('status-overlay');
     statusText = document.getElementById('status-text');
     debugInfo = document.getElementById('debug-info');
+    btnBack = document.getElementById('btn-back');
 
     // Initialize 3D scene first (runs in background)
     initScene(canvasContainer);
@@ -33,6 +35,9 @@ async function init() {
     document.getElementById('btn-mouse').addEventListener('click', () => startWithMode('mouse'));
     document.getElementById('btn-webcam').addEventListener('click', () => startWithMode('face'));
 
+    // Setup back button
+    btnBack.addEventListener('click', goBackToModeSelection);
+
     // Start render loop
     isInitialized = true;
     animate();
@@ -43,8 +48,9 @@ async function init() {
  * @param {string} mode - 'mouse' or 'face'
  */
 async function startWithMode(mode) {
-    // Hide mode selection
+    // Hide mode selection, show back button
     modeOverlay.classList.add('hidden');
+    btnBack.classList.remove('hidden');
 
     if (mode === 'mouse') {
         // Start mouse tracking immediately
@@ -83,6 +89,24 @@ async function startWithMode(mode) {
             }, 100);
         }
     }
+}
+
+/**
+ * Go back to mode selection screen
+ */
+function goBackToModeSelection() {
+    // Stop current tracking
+    stopTracker();
+
+    // Hide back button and debug info
+    btnBack.classList.add('hidden');
+    debugInfo.innerHTML = '';
+
+    // Reset camera position
+    updateCameraFromHead({ x: 0, y: 0, z: 0 });
+
+    // Show mode selection
+    modeOverlay.classList.remove('hidden');
 }
 
 /**

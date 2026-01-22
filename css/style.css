@@ -192,3 +192,28 @@ html, body {
     font-size: 0.85rem;
     color: rgba(255, 255, 255, 0.6);
 }
+
+/* Back button */
+.back-button {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #fff;
+    padding: 10px 20px;
+    font-size: 0.95rem;
+    border-radius: 6px;
+    cursor: pointer;
+    z-index: 100;
+    transition: all 0.2s ease;
+}
+
+.back-button:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.back-button.hidden {
+    display: none;
+}
