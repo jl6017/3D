@@ -252,6 +252,34 @@ FilesetResolver = visionModule.FilesetResolver;
 
 ---
 
+### 2026-01-22 19:30 - Tuning: Controls and Scene
+
+**Changes:**
+1. **Inverted X direction** for mouse input (intuitive: mouse right = see right)
+2. **Removed chair** from scene
+3. **Reduced sensitivity** in scene.js:
+   - viewerX: 0.4 → 0.25
+   - viewerY: 0.3 → 0.18
+   - viewerZ: 0.2 → 0.15
+
+4. **Face tracking adjustments** in tracker.js:
+   - Inverted Y direction (line 216)
+   - Inverted Z direction (line 217)
+   - Increased scaleZ: 1.0 → 2.0
+
+**Direction Control Locations:**
+
+| File | Line | Variable | Sign |
+|------|------|----------|------|
+| tracker.js | 248 | Mouse X | `-` (inverted) |
+| tracker.js | 249 | Mouse Y | `+` |
+| tracker.js | 215 | Face X | `-` (inverted) |
+| tracker.js | 216 | Face Y | `-` (inverted) |
+| tracker.js | 217 | Face Z | `+` (inverted) |
+| scene.js | 615-617 | viewerX/Y/Z | scaling factors |
+
+---
+
 ## Technical Notes
 
 ### Off-Axis Projection Math

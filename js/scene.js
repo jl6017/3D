@@ -180,21 +180,6 @@ function createFurniture() {
         scene.add(leg);
     });
 
-    // Chair
-    const chairMaterial = new THREE.MeshStandardMaterial({ color: 0x4a4a6a, roughness: 0.6 });
-
-    // Chair seat
-    const chairSeat = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.05, 0.4), chairMaterial);
-    chairSeat.position.set(0, -0.25, -0.9);
-    chairSeat.castShadow = true;
-    scene.add(chairSeat);
-
-    // Chair back
-    const chairBack = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.5, 0.05), chairMaterial);
-    chairBack.position.set(0, 0.02, -0.68);
-    chairBack.castShadow = true;
-    scene.add(chairBack);
-
     // Bookshelf on left
     createBookshelf(-1.5, -2.5);
 
@@ -626,11 +611,10 @@ export function updateCameraFromHead(headPos) {
     if (!camera) return;
 
     // Convert normalized [-1, 1] to physical position
-    // Assume viewer is ~0.5m from screen and moves +/- 0.3m side to side
-    // Note: Y is already flipped in tracker.js (positive Y = up)
-    const viewerX = headPos.x * 0.4;
-    const viewerY = headPos.y * 0.3;
-    const viewerZ = 0.6 + headPos.z * 0.2; // Base distance + depth variation
+    // Reduced scaling for less sensitive movement
+    const viewerX = headPos.x * 0.25;
+    const viewerY = headPos.y * 0.18;
+    const viewerZ = 0.6 + headPos.z * 0.15; // Base distance + depth variation
 
     // Update camera position
     camera.position.set(viewerX, viewerY, viewerZ);

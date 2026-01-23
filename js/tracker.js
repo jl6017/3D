@@ -19,7 +19,7 @@ const CONFIG = {
     // Position scaling
     scaleX: 2.0,  // How much to amplify horizontal movement
     scaleY: 1.5,  // How much to amplify vertical movement
-    scaleZ: 1.0,  // How much to amplify depth movement
+    scaleZ: 2.0,  // How much to amplify depth movement
 };
 
 // Module state
@@ -213,8 +213,8 @@ function extractHeadPosition(landmarks) {
     // Normalize to [-1, 1] range
     // Note: x is flipped because webcam is mirrored
     headPosition.x = -(eyeCenter.x - 0.5) * 2 * CONFIG.scaleX;
-    headPosition.y = (eyeCenter.y - 0.5) * 2 * CONFIG.scaleY;
-    headPosition.z = -eyeCenter.z * CONFIG.scaleZ; // z is depth
+    headPosition.y = -(eyeCenter.y - 0.5) * 2 * CONFIG.scaleY;
+    headPosition.z = eyeCenter.z * CONFIG.scaleZ; // z is depth (inverted)
 
     // Clamp values
     headPosition.x = Math.max(-1, Math.min(1, headPosition.x));
@@ -244,8 +244,8 @@ function applySmoothing() {
  */
 function handleMouseMove(event) {
     // Convert mouse position to [-1, 1] range
-    // For intuitive control: mouse up = look up (see top of scene)
-    headPosition.x = (event.clientX / window.innerWidth - 0.5) * 2;
+    // Inverted X for intuitive control: mouse right = see right side of scene
+    headPosition.x = -(event.clientX / window.innerWidth - 0.5) * 2;
     headPosition.y = (event.clientY / window.innerHeight - 0.5) * 2;
     headPosition.z = 0;
 
